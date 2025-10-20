@@ -34,7 +34,8 @@ class PiLightAgent(RLAgent):
         self.startlanes = list(set(lanelink[0] for lanelink in self.lanelinks))
         self.endlanes = list(set(lanelink[1] for lanelink in self.lanelinks))
 
-        self.ob_generator = LaneVehicleGenerator(self.world,  self.inter, ['lane_count'], in_only=False, average=None)
+        self.ob_generator = LaneVehicleGenerator(self.world,  self.inter, ['lane_count', "lane_waiting_count", "lane_vehicle_distance"], in_only=False, average=None)
+        self.ob_lanes = np.array(self.ob_generator.lanes).flatten().tolist()
 
         self.phase_generator = IntersectionPhaseGenerator(world,  self.inter, ["phase"],
                                                           targets=["cur_phase"], negative=False)
@@ -56,6 +57,35 @@ class PiLightAgent(RLAgent):
         self.inlane_code = inlane_code
         self.outlane_code = outlane_code
 
+    def ob_transform(self, ob):
+        '''
+        ob_transform
+        Transform observation into desired format.
+
+        :param ob: original observation
+        '''
+        l = self.ob_generator.ob_length//3
+        num_vehicle = ob[0:l]
+        num_waiting_vehicle = ob[l:2*l]
+        vehicle_dist = ob[2*l:3*l]
+
+
+        inlane_2_num_vehicle = []
+        outlane_2_num_vehicle = []
+        inlane_2_num_waiting_vehicle = []
+        inlane_2_vehicle_dist = []
+        outlane_2_vehicle_dist = []
+
+        for start_lane in self.startlanes:
+            inlane_2_num_vehicle.append(num_vehicle[self.ob_lanes.index(start_lane)])
+            inlane_2_num_waiting_vehicle.append(num_waiting_vehicle[self.ob_lanes.index(start_lane)])
+            inlane_2_vehicle_dist.append(vehicle_dist[self.ob_lanes.index(start_lane)])
+        for end_lane in self.endlanes:
+            outlane_2_num_vehicle.append(num_vehicle[self.ob_lanes.index(end_lane)])
+            outlane_2_vehicle_dist.append(vehicle_dist[self.ob_lanes.index(end_lane)])
+
+        return inlane_2_num_vehicle, outlane_2_num_vehicle, inlane_2_num_waiting_vehicle, inlane_2_vehicle_dist, outlane_2_vehicle_dist
+
     def reset(self):
         pass
 
@@ -69,7 +99,7 @@ class PiLightAgent(RLAgent):
         '''
         x_obs = []
         x_obs.append(self.ob_generator.generate())
-        x_obs = np.array(x_obs, dtype=np.float32)
+        x_obs = np.array(x_obs)
         return x_obs
 
     def get_reward(self):
@@ -118,7 +148,7 @@ class PiLightAgent(RLAgent):
         return action
 
     def _get_value_for_lanelink(self, ob, lanelink):
-        inlane_2_num_vehicle, outlane_2_num_vehicle, inlane_2_num_waiting_vehicle, inlane_2_vehicle_dist, outlane_2_vehicle_dist = ob
+        inlane_2_num_vehicle, outlane_2_num_vehicle, inlane_2_num_waiting_vehicle, inlane_2_vehicle_dist, outlane_2_vehicle_dist = self.ob_transform(ob)
         value = [0]
         start_lane_name, end_lane_name = lanelink[0], lanelink[1]
         index = self.startlanes.index(start_lane_name)

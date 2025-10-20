@@ -296,6 +296,7 @@ class World(object):
             "lane_count": self.eng.get_lane_vehicle_count,
             "lane_waiting_count": self.eng.get_lane_waiting_vehicle_count,
             "lane_vehicles": self.eng.get_lane_vehicles,
+            "lane_vehicle_distance": self.get_lane_vehicle_distance,
             "time": self.eng.get_current_time,
             "vehicle_distance": self.eng.get_vehicle_distance,
             "pressure": self.get_pressure,
@@ -843,9 +844,28 @@ class World(object):
             count += 1
         avg_delay = avg_delay / count
         return avg_delay
+    
+    def get_lane_vehicle_distance(self):
+        '''
+        get_lane_vehicle_distance
+        Get distance travelled on current lane of each vehicle.
         
+        :param: None
+        :return distance travelled on current lane of each vehicle
+        '''
+        lane_vehicles = self.eng.get_lane_vehicles()
+        lane_vehicle_distance = {}
+        lanes = self.all_lanes
 
-
+        for lane in lanes:
+            vehicles = lane_vehicles[lane]
+            vehicle_distances = []
+            for vehicle in vehicles:
+                dis = self.eng.get_vehicle_distance()
+                vehicle_distances.append(dis[vehicle])
+            vehicle_distances.reverse()
+            lane_vehicle_distance[lane] = vehicle_distances
+        return lane_vehicle_distance
 
 
 if __name__ == "__main__":
