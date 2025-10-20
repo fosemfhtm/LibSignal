@@ -5,3 +5,12 @@ includes:
 model:
   name: pilight
   train_model: True
+  mcts:
+    episodes: 30
+    num_step: 3600
+    observation_feature_list:
+      - inlane_2_num_vehicle
+      - outlane_2_num_vehicle
+      - inlane_2_num_waiting_vehicle
+      - inlane_2_vehicle_dist
+      - outlane_2_vehicle_dist
