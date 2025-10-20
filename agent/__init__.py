@@ -1,6 +1,7 @@
 from .base import BaseAgent
 from .rl_agent import RLAgent
 from .maxpressure import MaxPressureAgent
+from .pilight import PiLightAgent
 from .colight import CoLightAgent
 from .dqn import DQNAgent
 from .sotl import SOTLAgent

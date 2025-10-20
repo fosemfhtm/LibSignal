@@ -1,0 +1,12 @@
+includes:
+  - configs/tsc/base.yml
+
+
+model:
+  name: pilight
+  observation_feature_list:
+    - lane_count
+    - lane_waiting_count
+    - lane_count_out
+    - lane_vehicle_dist
+    - lane_vehicle_dist_out

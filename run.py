@@ -47,7 +47,6 @@ class Runner:
         """
         Register config into Registry class
         """
-
         interface.Command_Setting_Interface(self.config)
         interface.Logger_param_Interface(self.config)  # register logger path
         interface.World_param_Interface(self.config)

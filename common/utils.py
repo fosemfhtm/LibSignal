@@ -294,6 +294,7 @@ def merge_dicts(dict1: dict, dict2: dict):
 def build_config(args):
     # configs file of specific agents is loaded from configs/agents/{agent_name}
     agent_name = os.path.join('./configs/agents', args.task, f'{args.agent}.yml')
+    print(agent_name)
     config, duplicates_warning, duplicates_error = load_config(agent_name)
     if len(duplicates_warning) > 0:
         logging.warning(
